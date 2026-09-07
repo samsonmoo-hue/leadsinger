@@ -44,5 +44,5 @@ export default function ScreenAwake() {
       void lock?.release().catch(() => {});
     };
   }, [attempt]);
-  return <div className="stage-note"><span role="status">{status}</span>{retry && <> <button type="button" className="secondary" onClick={() => setAttempt(value => value + 1)}>重新啟用</button></>}</div>;
+  return <div className="stage-note screen-awake"><span role="status">{status}</span>{retry && <> <button type="button" className="secondary" onClick={() => setAttempt(value => value + 1)}>重新啟用</button></>}</div>;
 }
