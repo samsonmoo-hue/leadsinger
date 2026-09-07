@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="領唱提示簡單使用說明：建立房間、編排歌單、設定速度，讓樂手同步觀看提示。">
+  <title>使用說明｜領唱提示</title>
+  <link rel="icon" href="./favicon.svg">
+  <style>
+    :root{color-scheme:dark;font-family:"Microsoft JhengHei",system-ui,sans-serif;color:#ecf0ee;background:#101715}*{box-sizing:border-box}body{margin:0}main{max-width:760px;margin:auto;padding:24px 20px 40px}nav{display:flex;align-items:center;justify-content:space-between;gap:16px}a{color:#c6f777}a:focus-visible{outline:3px solid #c6f777;outline-offset:4px}.back{display:inline-block;border:1px solid #415046;border-radius:9px;padding:10px 16px;text-decoration:none;font-size:14px}h1{font-size:30px;margin:28px 0 8px}h2{font-size:20px;margin:0 0 12px}p,li{font-size:16px;line-height:1.8}p{margin:8px 0}section{background:#19221d;border:1px solid #344037;border-radius:14px;padding:20px;margin-top:16px}ol{padding-left:24px;margin:0}li+li{margin-top:8px}.intro,.note{color:#acbcb0}.cues{display:grid;grid-template-columns:1fr 1fr;gap:10px}.cue{border:1px solid currentColor;border-radius:10px;padding:12px;text-align:center;font-weight:bold}.blue{color:#8dccff}.orange{color:#ffc96b}.purple{color:#d6adff}.green{color:#c6f777}strong{color:#edf4eb}.heart{color:#ff526b}footer{margin-top:24px;text-align:center}@media(max-width:420px){main{padding:16px 14px 28px}section{padding:16px}}
+  </style>
+</head>
+<body>
+<main>
+  <nav aria-label="頁面導覽"><span>領唱提示</span><a class="back" href="./">回到首頁</a></nav>
+  <h1>使用說明</h1>
+  <p class="intro">領唱操作，樂手跟隨。所有人選擇同一個房間，就能同步看到歌名與演奏提示。</p>
+  <section aria-labelledby="leader">
+    <h2 id="leader">領唱：建立房間與歌單</h2>
+    <ol>
+      <li>首頁點「<strong>領唱建立房間</strong>」。房間名稱自動產生，可按「換一個」，再按「建立房間，確認詩歌」。</li>
+      <li>輸入歌名，按「<strong>增加一首歌</strong>」。用拖曳把手或上下箭頭調整順序。</li>
+      <li>速度可留空；需要節拍提示時，在歌曲旁的「<strong>速度（選填）</strong>」輸入 BPM。</li>
+      <li>按「<strong>確認並進入房間</strong>」儲存歌單，將房間名稱告訴樂手。</li>
+    </ol>
+  </section>
+  <section aria-labelledby="musician">
+    <h2 id="musician">樂手：加入並觀看提示</h2>
+    <ol>
+      <li>首頁選擇領唱告知的房間，身分選「<strong>樂手</strong>」，按「進入房間」。</li>
+      <li>等待領唱操作，歌名與亮起的提示會自動更新，不必重新加入。</li>
+    </ol>
+    <p class="note">已有房間的領唱，也可從首頁選擇房間與「領唱」身分，繼續管理歌單。</p>
+  </section>
+  <section aria-labelledby="cues">
+    <h2 id="cues">四顆演奏提示</h2>
+    <p>領唱點按鈕，樂手觀看亮起的顏色與文字。</p>
+    <div class="cues"><div class="cue blue">從頭</div><div class="cue orange">副歌</div><div class="cue purple">尾句</div><div class="cue green">音樂繼續</div></div>
+    <p>用「上一首／下一首」或選單切歌。<strong>切歌後會清除上一首提示。</strong></p>
+  </section>
+  <section aria-labelledby="tempo">
+    <h2 id="tempo"><span class="heart" aria-hidden="true">♥</span> 速度與紅心</h2>
+    <p>BPM 是每分鐘拍數，可填 1–300 的整數。<strong>60 BPM 每秒跳一次，120 BPM 每半秒跳一次。</strong></p>
+    <p>填寫後，歌名右側會出現跳動紅心；留空則不顯示。要修改或清除速度，請由領唱點「詩歌確認」，修改後再按「確認並進入房間」。</p>
+    <p class="note">紅心是無聲的視覺節拍提示；各裝置速度相同，但不保證同時落在同一拍點。</p>
+  </section>
+  <section aria-labelledby="tips">
+    <h2 id="tips">使用小提醒</h2>
+    <p><strong>螢幕長亮：</strong>進房後自動嘗試啟用，請查看畫面底部狀態。使用時保持網頁在前景；若啟用失敗，可按「重新啟用」或調整手機省電、自動鎖定設定。</p>
+    <p><strong>離開與刪除：</strong>「離開房間」只離開畫面，房間仍保留。領唱在「詩歌確認」刪除房間，會清除整份歌單，所有團員回到房間列表。</p>
+    <p><strong>看不到新功能：</strong>重新整理網頁，再選擇房間與身分加入。</p>
+  </section>
+  <footer><a class="back" href="./">回到首頁，開始使用</a></footer>
+</main>
+</body>
+</html>
