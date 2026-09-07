@@ -5,14 +5,23 @@
     "rooms": {
       ".read": "auth != null",
       "$room": {
-        ".write": "auth != null && !data.exists() && newData.exists()",
-        ".validate": "newData.hasChildren(['name', 'state'])",
+        ".write": "auth != null && ((!data.exists() && newData.exists() && newData.child('createdBy').val() === auth.uid) || (data.exists() && (data.child('createdBy').val() === auth.uid || root.child('members').child($room).child(auth.uid).val() === 'leader')))",
+        ".validate": "newData.hasChildren(['name', 'state']) && (!newData.child('state/songId').exists() || newData.child('state/songId').val() === '' || newData.child('songs').child(newData.child('state/songId').val()).exists())",
         "name": { ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 80 && (!data.exists() || newData.val() === data.val())" },
+        "createdBy": { ".validate": "newData.isString() && ((!data.exists() && newData.val() === auth.uid) || newData.val() === data.val())" },
+        "songs": {
+          "$song": {
+            ".validate": "newData.hasChildren(['name', 'order'])",
+            "name": { ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 80" },
+            "order": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() % 1 === 0" },
+            "$other": { ".validate": false }
+          }
+        },
         "state": {
-          ".write": "auth != null && root.child('members').child($room).child(auth.uid).val() === 'leader' && data.exists() && newData.exists()",
-          ".validate": "newData.hasChildren(['cue', 'revision']) && ((!data.exists() && newData.child('cue').val() === 'waiting' && newData.child('revision').val() === 0) || (data.exists() && newData.child('revision').val() === data.child('revision').val() + 1 && newData.child('cue').val() !== 'waiting'))",
+          ".validate": "newData.hasChildren(['cue', 'revision']) && (!newData.parent().child('songs').exists() || newData.child('songId').isString()) && ((!data.exists() && newData.child('cue').val() === 'waiting' && newData.child('revision').val() === 0 && newData.child('songId').val() === '') || (data.exists() && newData.child('revision').val() === data.child('revision').val() + 1)) && (newData.child('songId').val() === data.child('songId').val() || newData.child('cue').val() === 'waiting') && (newData.child('songId').val() !== '' || newData.child('cue').val() === 'waiting')",
           "cue": { ".validate": "newData.val() === 'waiting' || newData.val() === 'start' || newData.val() === 'chorus' || newData.val() === 'ending' || newData.val() === 'continue'" },
-          "revision": { ".validate": "newData.isNumber() && newData.val() >= 0" },
+          "revision": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() % 1 === 0" },
+          "songId": { ".validate": "newData.isString()" },
           "$other": { ".validate": false }
         },
         "$other": { ".validate": false }
@@ -20,6 +29,7 @@
     },
     "members": {
       "$room": {
+        ".write": "auth != null && !newData.exists() && (root.child('rooms').child($room).child('createdBy').val() === auth.uid || data.child(auth.uid).val() === 'leader')",
         "$uid": {
           ".read": "auth != null && auth.uid === $uid",
           ".write": "auth != null && auth.uid === $uid && root.child('rooms').child($room).exists()",

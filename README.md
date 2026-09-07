@@ -2,18 +2,23 @@
 
 網站：https://samsonmoo-hue.github.io/leadsinger/
 
-1. 領唱先建立房間，名稱就是歌名。
-2. 團員選擇已建立的房間與領唱／樂手身分。
-3. 領唱點選「從頭、副歌、尾句、音樂繼續」，同房裝置即時更新。
+1. 領唱建立房間，預設隨機聖經人名，可按「換一個」。使用交易避免同時建立同名房間；人名用完後加上編號。
+2. 進入詩歌確認頁，輸入歌名並新增。可刪除詩歌、拖曳把手排序，或用上下箭頭排序；不設歌曲數量上限，每首歌名最多 80 字。
+3. 按「確認並進入房間」儲存整份歌單。未確認的編輯只保留在目前頁面。
+4. 樂手選擇房間與身分，加入一次即可跟隨領唱。歌單尚未確認時，畫面會等待領唱。
+5. 領唱使用上一首、下一首或下拉選單切歌。切歌會清除上一首提示；「從頭／副歌／尾句／音樂繼續」分別以藍／橙／紫／綠色亮起。
+6. 領唱可再開啟「詩歌確認」修改歌單，或確認刪除房間。刪除會清除歌單與成員資料，其他裝置自動回到房間列表。
 
-前端由 GitHub Pages 的 `main` 分支 `/docs` 發布；後端使用 Firebase `leadsinger` 專案的 Realtime Database（新加坡）與匿名 Authentication，不需要個人帳號或密碼。
+前端由 GitHub Pages 的 `main` 分支 `/docs` 發布；後端使用 Firebase `leadsinger` 專案的 Realtime Database（新加坡）與匿名 Authentication。
 
 ## 開發與發布
 
-執行 `npm ci`、`npm run build:pages`。建置結果輸出至 `docs/`；提交並推送即可觸發 Pages。`npx tsc --noEmit` 可檢查型別。
+執行 `npm ci`、`npm run build:pages`，建置結果輸出至 `docs/`；提交並推送即可觸發 Pages。`npx tsc --noEmit` 檢查型別。
 
-`lib/firebase-config.ts` 是瀏覽器公開設定，不是管理員憑證。權限由 `database.rules.json` 控制，規則已同步至 Firebase。切勿提交服務帳戶私鑰或管理員憑證。
+`database.rules.json` 需同步發布至 Firebase。`lib/firebase-config.ts` 是瀏覽器公開設定，不是管理員憑證；切勿提交服務帳戶私鑰或管理員憑證。
 
-身分由使用者自行選擇；本版不提供領唱密碼。後端限制每個匿名身分只能設定自己的角色，樂手角色不能修改提示、房間名稱或其他人的角色。重新整理後須重新選擇房間。連線中斷會顯示最後收到的提示，重連後自動更新。房間目前沒有刪除介面。
+`node scripts/check-playlist.mjs` 使用兩個獨立匿名 Firebase 客戶端驗證歌單、同名競爭、四種提示、切歌清燈、錯誤寫入拒絕與房間刪除。它會建立暫存房間並在結束時清除自己的測試房間和匿名帳號；不修改既有房間。`node scripts/check-firebase.mjs` 只檢查連線與讀取權限。
 
-`app/api`、`db` 與 Sites 設定保留先前私人原型，GitHub Pages 版本不使用這些 API，也不依賴 Sites 分享權限。Firebase 版本的同步檢查使用 `scripts/check-firebase.mjs`；舊 `scripts/check-sync.mjs` 僅適用原型。
+身分沿用使用者自行選擇，不提供領唱密碼。一般樂手不能修改房間；建立者及選擇領唱的成員可管理房間。重新整理後須重新加入；領唱仍可從已儲存的房間繼續操作。連線中斷會顯示最後收到的提示，重連後自動更新。
+
+舊版的一首歌一房間仍可使用，領唱確認新歌單時會更新資料格式。`app/api`、`db` 與 Sites 設定保留先前私人原型，GitHub Pages 版本不使用這些 API。`scripts/check-sync.mjs` 僅適用該原型。
