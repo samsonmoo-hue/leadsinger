@@ -1,10 +1,11 @@
+import { allowedOrigin, withCors } from '../../../lib/cors';
 import { getDb } from '../../../db';
-export async function GET() {
+async function handleGET(_request: Request) {
   const { results } = await getDb().prepare('SELECT id, name, cue, revision FROM rooms ORDER BY name').all();
   return Response.json(results, { headers: { 'Cache-Control': 'no-store' } });
 }
-export async function POST(request: Request) {
-  if (request.headers.get('origin') !== new URL(request.url).origin) return new Response(null, { status: 403 });
+async function handlePOST(request: Request) {
+  if (!allowedOrigin(request)) return new Response(null, { status: 403 });
   const body = await request.json().catch(() => null) as Record<string, string> | null;
   const name = typeof body?.name === 'string' ? body.name.trim().normalize('NFC') : '';
   if (!name || name.length > 80) return Response.json({ error: '請輸入 1–80 字的歌名。' }, { status: 400 });
@@ -14,3 +15,7 @@ export async function POST(request: Request) {
   return Response.json({ id, name, cue: null, revision: 0 }, { status: 201 });
 }
 
+
+export const GET = (request: Request) => withCors(request, () => handleGET(request));
+export const POST = (request: Request) => withCors(request, () => handlePOST(request));
+export const OPTIONS = (request: Request) => withCors(request, async () => new Response(null));

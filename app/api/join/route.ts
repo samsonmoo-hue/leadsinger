@@ -1,6 +1,7 @@
+import { allowedOrigin, withCors } from '../../../lib/cors';
 import { getDb } from '../../../db';
-export async function POST(request: Request) {
-  if (request.headers.get('origin') !== new URL(request.url).origin) return new Response(null, { status: 403 });
+async function handlePOST(request: Request) {
+  if (!allowedOrigin(request)) return new Response(null, { status: 403 });
   const body = await request.json().catch(() => null) as Record<string, string> | null;
   if (!body || !['leader', 'musician'].includes(body.role) || typeof body.roomId !== 'string') return new Response(null, { status: 400 });
   const room = await getDb().prepare('SELECT id, name, cue, revision FROM rooms WHERE id = ?').bind(body.roomId).first();
@@ -10,3 +11,6 @@ export async function POST(request: Request) {
   return Response.json({ token, room }, { headers: { 'Cache-Control': 'no-store' } });
 }
 
+
+export const POST = (request: Request) => withCors(request, () => handlePOST(request));
+export const OPTIONS = (request: Request) => withCors(request, async () => new Response(null));

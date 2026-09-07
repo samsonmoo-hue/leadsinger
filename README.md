@@ -1,13 +1,19 @@
-# 同拍｜領唱提示
+# leadsinger｜同拍領唱提示
 
-領唱先建立歌名房間，再由各裝置選擇同一房間及身分。四種提示為「從頭、副歌、尾句、音樂繼續」。樂手只能觀看；領唱的請求須攜帶後端簽發的角色工作階段。身分是自行選擇，沒有帳號或領唱密碼。
+網站：https://samsonmoo-hue.github.io/leadsinger/
 
-共用狀態儲存在 Cloudflare D1。房內每次讀取完成後 750 ms 再次同步，實際延遲依網路而定，並非節拍級同步。失敗會自動重試並標示最後收到的狀態。領唱工作階段有效 24 小時，重整或重新加入會取得新工作階段。房間目前不提供刪除。
+1. 領唱先建立房間，名稱就是歌名。
+2. 團員選擇已建立的房間與領唱／樂手身分。
+3. 領唱點選「從頭、副歌、尾句、音樂繼續」，同房裝置即時更新。
 
-## 開發
+前端由 GitHub Pages 的 `main` 分支 `/docs` 發布；後端使用 Firebase `leadsinger` 專案的 Realtime Database（新加坡）與匿名 Authentication，不需要個人帳號或密碼。
 
-`npm install`、`npm run dev`。在本地 D1 套用 `drizzle/` 遷移後即可操作。資料表由 Drizzle 遷移管理，上線由 Sites 套用。
+## 開發與發布
 
-`npm run build`、`npx tsc --noEmit`；啟動本機服務後執行 `node scripts/check-sync.mjs` 驗證 API，會在本機建立兩個測試房間。
+執行 `npm ci`、`npm run build:pages`。建置結果輸出至 `docs/`；提交並推送即可觸發 Pages。`npx tsc --noEmit` 可檢查型別。
 
-首次發布為私人存取。供其他帳號或未登入的團員使用前，須設定網站分享權限。瀏覽器 WebMCP 為選用能力；未於支援的瀏覽器執行驗證。API 驗證不等同實體多裝置或瀏覽器操作驗證。
+`lib/firebase-config.ts` 是瀏覽器公開設定，不是管理員憑證。權限由 `database.rules.json` 控制，規則已同步至 Firebase。切勿提交服務帳戶私鑰或管理員憑證。
+
+身分由使用者自行選擇；本版不提供領唱密碼。後端限制每個匿名身分只能設定自己的角色，樂手角色不能修改提示、房間名稱或其他人的角色。重新整理後須重新選擇房間。連線中斷會顯示最後收到的提示，重連後自動更新。房間目前沒有刪除介面。
+
+`app/api`、`db` 與 Sites 設定保留先前私人原型，GitHub Pages 版本不使用這些 API，也不依賴 Sites 分享權限。Firebase 版本的同步檢查使用 `scripts/check-firebase.mjs`；舊 `scripts/check-sync.mjs` 僅適用原型。

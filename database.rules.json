@@ -1,0 +1,31 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+    "rooms": {
+      ".read": "auth != null",
+      "$room": {
+        ".write": "auth != null && !data.exists() && newData.exists()",
+        ".validate": "newData.hasChildren(['name', 'state'])",
+        "name": { ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 80 && (!data.exists() || newData.val() === data.val())" },
+        "state": {
+          ".write": "auth != null && root.child('members').child($room).child(auth.uid).val() === 'leader' && data.exists() && newData.exists()",
+          ".validate": "newData.hasChildren(['cue', 'revision']) && ((!data.exists() && newData.child('cue').val() === 'waiting' && newData.child('revision').val() === 0) || (data.exists() && newData.child('revision').val() === data.child('revision').val() + 1 && newData.child('cue').val() !== 'waiting'))",
+          "cue": { ".validate": "newData.val() === 'waiting' || newData.val() === 'start' || newData.val() === 'chorus' || newData.val() === 'ending' || newData.val() === 'continue'" },
+          "revision": { ".validate": "newData.isNumber() && newData.val() >= 0" },
+          "$other": { ".validate": false }
+        },
+        "$other": { ".validate": false }
+      }
+    },
+    "members": {
+      "$room": {
+        "$uid": {
+          ".read": "auth != null && auth.uid === $uid",
+          ".write": "auth != null && auth.uid === $uid && root.child('rooms').child($room).exists()",
+          ".validate": "newData.val() === 'leader' || newData.val() === 'musician'"
+        }
+      }
+    }
+  }
+}
