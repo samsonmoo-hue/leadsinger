@@ -62,3 +62,6 @@
 .song-list .tempo-field{display:flex;align-items:center;gap:8px;margin:0;flex-shrink:0;white-space:nowrap}
 .song-list .tempo-field input:not([type=radio]){width:80px;margin:0}
 @media(max-width:640px){.song-list li{flex-wrap:wrap}.song-list .song-name{flex-basis:calc(100% - 65px);gap:8px}.song-list .song-actions{margin-left:auto}.song-list .tempo-field{gap:5px}.song-list .tempo-field input:not([type=radio]){width:72px}}
+
+.header-actions{display:flex;align-items:center;justify-content:flex-end;gap:16px}.header-actions .secondary{white-space:nowrap;text-decoration:none}
+@media(max-width:640px){.header-actions{gap:6px;flex-wrap:wrap;max-width:150px}.header-actions .secondary{padding:8px;font-size:12px}.header-actions .connection{font-size:11px;gap:5px}}
