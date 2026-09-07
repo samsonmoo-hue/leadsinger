@@ -1,4 +1,4 @@
-# leadsinger｜同拍領唱提示
+# leadsinger｜領唱提示
 
 網站：https://samsonmoo-hue.github.io/leadsinger/
 
