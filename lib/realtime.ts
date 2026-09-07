@@ -2,9 +2,9 @@ import { initializeApp, getApps } from 'firebase/app';
 import { getAuth, signInAnonymously, setPersistence, inMemoryPersistence } from 'firebase/auth';
 import { getDatabase, ref, onValue, get, set, update, runTransaction } from 'firebase/database';
 import { firebaseConfig } from './firebase-config';
-export type Song = { id: string; name: string };
+export type Song = { id: string; name: string; bpm?: number };
 export type Room = { id: string; name: string; songs: Song[]; songId: string; cue: string | null; revision: number };
-type StoredRoom = { name: string; createdBy?: string; songs?: Record<string, { name: string; order: number }>; state: { cue: string; revision: number; songId?: string } };
+type StoredRoom = { name: string; createdBy?: string; songs?: Record<string, { name: string; order: number; bpm?: number }>; state: { cue: string; revision: number; songId?: string } };
 const bibleNames = ['大衛', '摩西', '約書亞', '撒母耳', '以利亞', '以利沙', '但以理', '約瑟', '以撒', '雅各', '亞伯拉罕', '挪亞', '彼得', '保羅', '約翰', '馬太', '馬可', '路加', '提摩太', '巴拿巴', '腓利', '安得烈', '西拉', '提多', '路得', '以斯帖', '底波拉', '哈拿', '馬利亞', '馬大', '撒拉', '利百加'];
 export function suggestRoomName(used: string[], random = Math.random): string {
   const available = bibleNames.filter(name => !used.includes(name));
@@ -26,7 +26,7 @@ export function client() { return pending ??= connect().catch(error => { pending
 function fromStored(id: string, value: StoredRoom): Room {
   // Existing one-song rooms stay usable until a leader confirms their new playlist.
   const legacy = value.state.songId === undefined;
-  const songs = legacy ? [{ id: 'legacy', name: value.name }] : Object.entries(value.songs ?? {}).sort((a,b) => a[1].order - b[1].order || a[0].localeCompare(b[0])).map(([id, song]) => ({ id, name: song.name }));
+  const songs = legacy ? [{ id: 'legacy', name: value.name }] : Object.entries(value.songs ?? {}).sort((a,b) => a[1].order - b[1].order || a[0].localeCompare(b[0])).map(([id, song]) => ({ id, name: song.name, ...(song.bpm === undefined ? {} : { bpm: song.bpm }) }));
   return { id, name: value.name, songs, songId: value.state.songId ?? 'legacy', cue: value.state.cue === 'waiting' ? null : value.state.cue, revision: value.state.revision };
 }
 export async function watch(roomId: string | undefined, receive: (value: Room | Room[] | null) => void, connection: (value: boolean) => void, error: (message: string) => void) {
@@ -77,7 +77,8 @@ async function changeRoom(id: string, change: (room: StoredRoom) => StoredRoom |
 }
 export async function saveSongs(id: string, songs: Song[], expectedSongs: Song[]) {
   if (!songs.length || songs.some(song => !song.name.trim() || song.name.trim().length > 80)) throw new Error('請至少新增一首詩歌，每首歌名限 1–80 字。');
-  const storedSongs = Object.fromEntries(songs.map((song, order) => [song.id, { name: song.name.trim(), order }]));
+  if (songs.some(song => song.bpm !== undefined && (!Number.isInteger(song.bpm) || song.bpm < 1 || song.bpm > 300))) throw new Error('拍子速度請填入 1–300 的整數，或留空。');
+  const storedSongs = Object.fromEntries(songs.map((song, order) => [song.id, { name: song.name.trim(), order, ...(song.bpm === undefined ? {} : { bpm: song.bpm }) }]));
   return changeRoom(id, old => {
     const current = fromStored(id, old);
     if (JSON.stringify(current.songs) !== JSON.stringify(expectedSongs)) return undefined;

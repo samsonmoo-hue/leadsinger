@@ -40,6 +40,22 @@ try {
   let live = await api.saveSongs(room.id, songs, []);
   assert.equal(live.songId, songs[0].id);
   await observed(value => value?.state.songId === songs[0].id);
+  let tempoSongs = songs.map((song, index) => index === 0 ? { ...song, bpm: 60 } : song);
+  live = await api.saveSongs(room.id, tempoSongs, songs);
+  assert.equal(live.songs[0].bpm, 60);
+  await observed(value => value?.songs?.[songs[0].id]?.bpm === 60);
+  const fasterSongs = tempoSongs.map((song, index) => index === 0 ? { ...song, bpm: 120 } : song);
+  live = await api.saveSongs(room.id, fasterSongs, tempoSongs);
+  await observed(value => value?.songs?.[songs[0].id]?.bpm === 120);
+  await assert.rejects(api.saveSongs(room.id, tempoSongs, tempoSongs));
+  for (const bpm of [0, -1, 301, 80.5, '80']) {
+    await assert.rejects(api.saveSongs(room.id, [{ ...songs[0], bpm }], fasterSongs));
+    await assert.rejects(set(ref(db, `rooms/${room.id}`), { name: room.name, songs: { [songs[0].id]: { name: 'invalid', order: 0, bpm } }, state: { cue: 'waiting', songId: songs[0].id, revision: live.revision + 1 } }));
+  }
+  await assert.rejects(set(ref(musicianDb, `rooms/${room.id}/songs/${songs[0].id}/bpm`), 90));
+  live = await api.saveSongs(room.id, songs, fasterSongs);
+  assert.equal(live.songs[0].bpm, undefined);
+  await observed(value => value?.state.revision === live.revision && value?.songs?.[songs[0].id]?.bpm === undefined);
   for (const cue of ['start', 'chorus', 'ending', 'continue']) {
     live = await api.sendCue(room.id, cue, live.songId);
     const revision = live.revision;
@@ -73,7 +89,7 @@ try {
   await assert.rejects(api.sendCue(room.id, 'start', live.songId));
   const after = (await get(ref(db, 'rooms'))).val() ?? {};
   for (const [id, value] of Object.entries(before)) assert.deepEqual(after[id], value, 'Existing rooms must be preserved');
-  console.log('PASS: unique concurrent rooms; playlist create/reorder/remove; realtime four cues and song switching; stale/invalid commands rejected; musician writes denied; deletion notification and member cleanup; existing rooms preserved.');
+  console.log('PASS: optional BPM create/update/clear and realtime delivery; invalid BPM and musician BPM writes rejected; unique concurrent rooms; playlist create/reorder/remove; realtime four cues and song switching; stale/invalid commands rejected; musician writes denied; deletion notification and member cleanup; existing rooms preserved.');
 } finally {
   stop?.();
   for (const room of created) {

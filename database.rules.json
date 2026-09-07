@@ -13,6 +13,7 @@
           "$song": {
             ".validate": "newData.hasChildren(['name', 'order'])",
             "name": { ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 80" },
+            "bpm": { ".validate": "newData.isNumber() && newData.val() >= 1 && newData.val() <= 300 && newData.val() % 1 === 0" },
             "order": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() % 1 === 0" },
             "$other": { ".validate": false }
           }

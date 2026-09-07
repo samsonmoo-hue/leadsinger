@@ -50,3 +50,12 @@
   .room-screen .now{flex-direction:row;justify-content:center;align-items:center;gap:12px}
   .room-screen .now span:last-child{display:none}
 }
+.song-title{display:flex;align-items:center;gap:12px;min-width:0}
+.song-title h1{min-width:0}
+.song-beat{display:inline-flex;align-items:center;gap:6px;flex-shrink:0;color:#ff526b;font-size:14px;font-weight:700}
+.beat-heart{width:25px;height:25px;transform-origin:center;animation:tempo-beat 1s linear infinite}
+@keyframes tempo-beat{0%,100%{transform:scale(1);opacity:1}25%{transform:scale(.72);opacity:.5}80%{transform:scale(.72);opacity:.5}}
+.tempo-field{display:block;font-size:12px;color:#a6b1aa;margin-top:10px}
+.tempo-field input:not([type=radio]){width:120px;max-width:100%;padding:8px 10px;margin-top:5px;font-size:16px}
+.song-list .tempo-field{margin-top:5px}
+.song-list .tempo-field input:not([type=radio]){width:100px}
