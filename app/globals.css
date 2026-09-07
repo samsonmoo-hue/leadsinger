@@ -57,5 +57,8 @@
 @keyframes tempo-beat{0%,100%{transform:scale(1);opacity:1}25%{transform:scale(.72);opacity:.5}80%{transform:scale(.72);opacity:.5}}
 .tempo-field{display:block;font-size:12px;color:#a6b1aa;margin-top:10px}
 .tempo-field input:not([type=radio]){width:120px;max-width:100%;padding:8px 10px;margin-top:5px;font-size:16px}
-.song-list .tempo-field{margin-top:5px}
-.song-list .tempo-field input:not([type=radio]){width:100px}
+.song-list .song-name{display:flex;align-items:center;gap:12px}
+.song-name-text{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.song-list .tempo-field{display:flex;align-items:center;gap:8px;margin:0;flex-shrink:0;white-space:nowrap}
+.song-list .tempo-field input:not([type=radio]){width:80px;margin:0}
+@media(max-width:640px){.song-list li{flex-wrap:wrap}.song-list .song-name{flex-basis:calc(100% - 65px);gap:8px}.song-list .song-actions{margin-left:auto}.song-list .tempo-field{gap:5px}.song-list .tempo-field input:not([type=radio]){width:72px}}
