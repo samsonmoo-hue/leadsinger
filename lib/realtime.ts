@@ -39,18 +39,14 @@ export async function watch(roomId: string | undefined, receive: (value: Room | 
   return () => { stopConnection(); stopData(); };
 }
 export async function createRoom(preferred: string) {
-  const { db, uid } = await client();
-  let name = preferred.trim();
+  const name = preferred.trim();
   if (!name || name.length > 80) throw new Error('房間名稱須為 1–80 字。');
-  for (let attempt = 0; attempt < 20; attempt++) {
-    const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(name.normalize('NFC')));
-    const id = Array.from(new Uint8Array(digest), n => n.toString(16).padStart(2, '0')).join('');
-    const result = await runTransaction(ref(db, `rooms/${id}`), old => old === null ? { name, createdBy: uid, state: { cue: 'waiting', revision: 0, songId: '' } } : undefined, { applyLocally: false });
-    if (result.committed) return fromStored(id, result.snapshot.val());
-    const snapshot = await get(ref(db, 'rooms'));
-    name = suggestRoomName(Object.values(snapshot.val() ?? {}).map(value => (value as StoredRoom).name));
-  }
-  throw new Error('建立房間的人較多，請再試一次。');
+  const { db, uid } = await client();
+  const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(name.normalize('NFC')));
+  const id = Array.from(new Uint8Array(digest), n => n.toString(16).padStart(2, '0')).join('');
+  const result = await runTransaction(ref(db, `rooms/${id}`), old => old === null ? { name, createdBy: uid, state: { cue: 'waiting', revision: 0, songId: '' } } : undefined, { applyLocally: false });
+  if (!result.committed) throw new Error('房間名稱已使用，請修改名稱或按「換一個」。');
+  return fromStored(id, result.snapshot.val());
 }
 export async function joinRoom(id: string, role: string) {
   if (!id || !['leader', 'musician'].includes(role)) throw new Error('請選擇房間與身分。');

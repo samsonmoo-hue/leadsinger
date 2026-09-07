@@ -25,9 +25,12 @@ try {
   const preferred = `測試-${Date.now()}`;
   const attempt = await Promise.allSettled([api.createRoom(preferred), api.createRoom(preferred)]);
   for (const result of attempt) if (result.status === 'fulfilled') created.push(result.value);
-  assert.equal(created.length, 2, JSON.stringify(attempt.map(item => item.status)));
-  assert.notEqual(created[0].id, created[1].id);
-  assert.notEqual(created[0].name, created[1].name);
+  assert.equal(created.length, 1, JSON.stringify(attempt.map(item => item.status)));
+  assert.equal(created[0].name, preferred);
+  assert.match(attempt.find(item => item.status === 'rejected').reason.message, /房間名稱已使用/);
+  await assert.rejects(api.createRoom('   '), /1–80/);
+  await assert.rejects(api.createRoom('字'.repeat(81)), /1–80/);
+  await assert.rejects(api.createRoom('  ' + preferred + '  '), /房間名稱已使用/);
   const room = created[0];
   assert.deepEqual(room.songs, []);
   assert.equal(room.songId, '');
@@ -89,7 +92,7 @@ try {
   await assert.rejects(api.sendCue(room.id, 'start', live.songId));
   const after = (await get(ref(db, 'rooms'))).val() ?? {};
   for (const [id, value] of Object.entries(before)) assert.deepEqual(after[id], value, 'Existing rooms must be preserved');
-  console.log('PASS: optional BPM create/update/clear and realtime delivery; invalid BPM and musician BPM writes rejected; unique concurrent rooms; playlist create/reorder/remove; realtime four cues and song switching; stale/invalid commands rejected; musician writes denied; deletion notification and member cleanup; existing rooms preserved.');
+  console.log('PASS: optional BPM create/update/clear and realtime delivery; invalid BPM and musician BPM writes rejected; custom room names retained; duplicate concurrent names rejected; playlist create/reorder/remove; realtime four cues and song switching; stale/invalid commands rejected; musician writes denied; deletion notification and member cleanup; existing rooms preserved.');
 } finally {
   stop?.();
   for (const room of created) {
